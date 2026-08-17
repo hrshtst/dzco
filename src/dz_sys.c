@@ -78,11 +78,11 @@ static void *_dzSysTypeFromZTK(void *obj, int i, void *arg, ZTK *ztk){
   return _dzSysQueryAssign( (dzSys*)obj, ZTKVal(ztk) ) ? obj : NULL;
 }
 
-static bool _dzSysNameFPrintZTK(FILE *fp, int i, void *obj){
+static bool _dzSysNameFPrintZTK(FILE *fp, int i, const void *obj){
   fprintf( fp, "%s\n", zName((dzSys*)obj) );
   return true;
 }
-static bool _dzSysTypeFPrintZTK(FILE *fp, int i, void *obj){
+static bool _dzSysTypeFPrintZTK(FILE *fp, int i, const void *obj){
   fprintf( fp, "%s\n", ((dzSys*)obj)->com ? ((dzSys*)obj)->com->typestr : "unknown" );
   return true;
 }
@@ -195,7 +195,7 @@ static void *_dzSysArrayConnectFromZTK(void *obj, int i, void *arg, ZTK *ztk){
   return obj;
 }
 
-static bool _dzSysArrayConnectFPrintZTK(FILE *fp, int i, void *obj){
+static bool _dzSysArrayConnectFPrintZTK(FILE *fp, int i, const void *obj){
   int j, k;
   dzSys *sys;
   dzSysPort *sp;

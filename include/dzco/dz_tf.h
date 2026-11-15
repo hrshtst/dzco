@@ -119,6 +119,15 @@ __DZCO_EXPORT bool dzTFIsStable(dzTF *tf);
  */
 __DZCO_EXPORT bool dzTFZeroPole(dzTF *tf);
 
+/*! \brief default tolerance to regard computed zeros and poles as real values.
+ *
+ * Computed multiple roots of a polynomial equation have imaginary parts much larger than rounding
+ * errors, e.g., about 1e-8 and 1e-5 times their absolute values for double and triple roots,
+ * respectively. This value is a tolerance relative to the absolute values that regards double and
+ * triple roots as real values in most cases.
+ */
+#define DZCO_MULTIPLE_ROOT_TOL ( 1.0e-5 )
+
 /*! \brief abstract zeros and poles of a transfer function into real and imaginary values.
  *
  * dzTFZeroPoleReIm() abstracts zeros and poles of a transfer function
@@ -126,11 +135,20 @@ __DZCO_EXPORT bool dzTFZeroPole(dzTF *tf);
  * The addresses of those vectors are stored in \a zero1, \a zero2,
  * \a pole1 and \a pole2, respectively, where \a zero1 and \a pole1
  * are for real values and \a zero2 and \a pole2 for imaginary values.
+ * A zero or a pole is regarded as a real value if the absolute value of
+ * its imaginary part is not greater than \a tol times its absolute value
+ * (see zComplexIsReal()). An appropriate value of \a tol depends on the
+ * problem: zTOL works if all the zeros and poles are distinct from each
+ * other, while a larger value is required for multiple zeros and poles.
+ *
+ * dzTFZeroPoleReImDefault() is the same with dzTFZeroPoleReIm() except
+ * that it adopts DZCO_MULTIPLE_ROOT_TOL as the tolerance.
  * \return
- * dzTFZeroPoleReIm() returns the true value if succeedings. Otherwise,
- * the false value is returned.
+ * dzTFZeroPoleReIm() and dzTFZeroPoleReImDefault() return the true value
+ * if succeedings. Otherwise, the false value is returned.
  */
-__DZCO_EXPORT bool dzTFZeroPoleReIm(dzTF *tf, zVec *zero1, zCVec *zero2, zVec *pole1, zCVec *pole2);
+__DZCO_EXPORT bool dzTFZeroPoleReIm(dzTF *tf, zVec *zero1, zCVec *zero2, zVec *pole1, zCVec *pole2, double tol);
+__DZCO_EXPORT bool dzTFZeroPoleReImDefault(dzTF *tf, zVec *zero1, zCVec *zero2, zVec *pole1, zCVec *pole2);
 
 /* ZTK */
 

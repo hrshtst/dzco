@@ -150,7 +150,7 @@ bool dzTFZeroPole(dzTF *tf)
   if( dzTFNumDim(tf) > 0 ){
     if( !( dzTFZero(tf) = zCVecAlloc( dzTFNumDim(tf) ) ) )
       return false;
-    if( !zPexDKA( dzTFNum(tf), dzTFZero(tf), ZM_PEX_EQ_TOL, 0 ) )
+    if( !zPexDKA( dzTFNum(tf), dzTFZero(tf), zTOL, 0 ) )
       return false;
   }
   if( dzTFDenDim(tf) > 0 ){
@@ -158,18 +158,24 @@ bool dzTFZeroPole(dzTF *tf)
       zCVecFree( dzTFZero(tf) );
       return false;
     }
-    if( !zPexDKA( dzTFDen(tf), dzTFPole(tf), ZM_PEX_EQ_TOL, 0 ) )
+    if( !zPexDKA( dzTFDen(tf), dzTFPole(tf), zTOL, 0 ) )
       return false;
   }
   return true;
 }
 
 /* abstract zeros and poles of a transfer function into real and imaginary values. */
-bool dzTFZeroPoleReIm(dzTF *tf, zVec *zero1, zCVec *zero2, zVec *pole1, zCVec *pole2)
+bool dzTFZeroPoleReIm(dzTF *tf, zVec *zero1, zCVec *zero2, zVec *pole1, zCVec *pole2, double tol)
 {
   if( !dzTFZeroPole( tf ) ) return false;
-  return zCVecToReImVec( dzTFZero(tf), zero1, zero2, ZM_PEX_EQ_TOL ) &&
-         zCVecToReImVec( dzTFPole(tf), pole1, pole2, ZM_PEX_EQ_TOL ) ? true : false;
+  return zCVecToReImVec( dzTFZero(tf), zero1, zero2, tol ) &&
+         zCVecToReImVec( dzTFPole(tf), pole1, pole2, tol ) ? true : false;
+}
+
+/* abstract zeros and poles of a transfer function into real and imaginary values with the default tolerance. */
+bool dzTFZeroPoleReImDefault(dzTF *tf, zVec *zero1, zCVec *zero2, zVec *pole1, zCVec *pole2)
+{
+  return dzTFZeroPoleReIm( tf, zero1, zero2, pole1, pole2, DZCO_MULTIPLE_ROOT_TOL );
 }
 
 static bool _dzTFFactorFromZTK(zPex *pex, ZTK *ztk){

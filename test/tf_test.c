@@ -1,10 +1,12 @@
 #include <dzco/dz_tf.h>
 
+#define TOL ( 1.0e-7 ) /* tolerance to compare values */
+
 bool is_equal(double v1, double v2)
 {
   bool ret;
-  ret = ( zIsTol(v1,ZM_PEX_EQ_TOL) && zIsTol(v2,ZM_PEX_EQ_TOL) ) ||
-        zIsTol( v1/v2 - 1.0, ZM_PEX_EQ_TOL ) ? true : false;
+  ret = ( zIsTol(v1,TOL) && zIsTol(v2,TOL) ) ||
+        zIsTol( v1/v2 - 1.0, TOL ) ? true : false;
   return ret;
 }
 
@@ -85,10 +87,40 @@ void assert_tf_connect(void)
     zPexEqual(dzTFDen(&tf),dzTFDen(&tf1),zTOL) );
 }
 
+/* zeros and poles of a transfer function with a double pole, a triple zero, and a pair of complex poles,
+ * namely, (s+2)^3 / ( (s+1)^2 (s^2+2s+5) ), classified into real and complex values. */
+void assert_tf_zeropole_reim(void)
+{
+  dzTF tf;
+  zVec zero1 = NULL, pole1 = NULL;
+  zCVec zero2 = NULL, pole2 = NULL;
+  int i;
+  bool result = true;
+
+  dzTFInit( &tf );
+  dzTFAlloc( &tf, 3, 4 );
+  dzTFSetNumList( &tf, 8.0, 12.0, 6.0, 1.0 );
+  dzTFSetDenList( &tf, 5.0, 12.0, 10.0, 4.0, 1.0 );
+  if( !dzTFZeroPoleReImDefault( &tf, &zero1, &zero2, &pole1, &pole2 ) ||
+      !zero1 || zVecSizeNC(zero1) != 3 || zero2 ||
+      !pole1 || zVecSizeNC(pole1) != 2 || !pole2 || zCVecSizeNC(pole2) != 2 ) result = false;
+  for( i=0; result && i<3; i++ )
+    if( !zIsTol( zVecElemNC(zero1,i) + 2, 1.0e-4 ) ) result = false;
+  for( i=0; result && i<2; i++ )
+    if( !zIsTol( zVecElemNC(pole1,i) + 1, 1.0e-6 ) ) result = false;
+  zVecFree( zero1 );
+  zCVecFree( zero2 );
+  zVecFree( pole1 );
+  zCVecFree( pole2 );
+  dzTFDestroy( &tf );
+  zAssert( dzTFZeroPoleReImDefault, result );
+}
+
 int main(int argc, char *argv[])
 {
   zRandInit();
   assert_tf_zeropole();
   assert_tf_connect();
+  assert_tf_zeropole_reim();
   return 0;
 }
